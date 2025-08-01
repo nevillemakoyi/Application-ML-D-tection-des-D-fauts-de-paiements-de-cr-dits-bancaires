@@ -1,4 +1,4 @@
-# Projet Data Science – Analyse de données
+# Projet Data Science – Machine Learning
 
 Ce projet contient des notebooks, scripts et résultats de data science.
 
