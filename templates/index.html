@@ -47,7 +47,7 @@
               <option value="">Sélectionnez</option>
               <option value="Single">Célibataire</option>
               <option value="Married">Marié(e)</option>
-              <option value="Divorced">Divorcé(e)</option>
+              <option value="Others">Autres</option>
             </select>
           </div>
 
@@ -89,11 +89,10 @@
           <button type="submit" class="btn btn-primary w-100 mt-3">Prédire</button>
 
           {% if rf_prediction is defined %}
-           <div class="alert alert-info mt-3 text-center">
-           Résultat du modèle Random Forest : <strong>{{ rf_prediction }}</strong>
-           </div>
-         {% endif %}
-
+            <div class="alert alert-info mt-3 text-center">
+              Résultat du modèle Random Forest : <strong>{{ rf_prediction }}</strong>
+            </div>
+          {% endif %}
         </form>
       </div>
 
@@ -108,9 +107,9 @@
           <button type="submit" class="btn btn-primary w-100">Analyser</button>
 
           {% if prediction_nlp is defined %}
-          <div class="alert alert-info mt-3 text-center">
-            Résultat NLP : <strong>{{ prediction_nlp }}</strong>
-          </div>
+            <div class="alert alert-info mt-3 text-center">
+              Résultat NLP : <strong>{{ prediction_nlp }}</strong>
+            </div>
           {% endif %}
         </form>
       </div>
@@ -126,9 +125,9 @@
           <button type="submit" class="btn btn-primary w-100">Envoyer</button>
 
           {% if prediction_llm is defined %}
-          <div class="alert alert-info mt-3 text-center">
-            Résultat LLM : <strong>{{ prediction_llm }}</strong>
-          </div>
+            <div class="alert alert-info mt-3 text-center">
+              Résultat LLM : <strong>{{ prediction_llm }}</strong>
+            </div>
           {% endif %}
         </form>
       </div>
@@ -137,4 +136,3 @@
   </div>
 </body>
 </html>
-
