@@ -39,70 +39,48 @@ def predict_rf():
             "High school": 3,
             "Others": 4,
         }
-        marriage_map = {"Married": 1, "Single": 2, "Others": 3}
+        marriage_map = {"Married": 1, "Single": 2, "Divorced": 3}
 
-        features = [
-            float(data["limit_bal"]),
-            sex_map[data["sex"]],
-            education_map[data["education"]],
-            marriage_map[data["marriage"]],
-            int(data["age"]),
-            int(data["payment_status_sep"]),
-            int(data["payment_status_aug"]),
-            int(data["payment_status_jul"]),
-            int(data["payment_status_jun"]),
-            int(data["payment_status_may"]),
-            int(data["payment_status_apr"]),
-            float(data["bill_statement_sep"]),
-            float(data["bill_statement_aug"]),
-            float(data["bill_statement_jul"]),
-            float(data["bill_statement_jun"]),
-            float(data["bill_statement_may"]),
-            float(data["bill_statement_apr"]),
-            float(data["previous_payment_sep"]),
-            float(data["previous_payment_aug"]),
-            float(data["previous_payment_jul"]),
-            float(data["previous_payment_jun"]),
-            float(data["previous_payment_may"]),
-            float(data["previous_payment_apr"]),
-        ]
+        def to_float(val, field_name):
+            try:
+                return float(val)
+            except Exception:
+                raise ValueError(f"Champ {field_name} doit être un nombre valide.")
 
-        columns = [
-            "LIMIT_BAL",
-            "SEX",
-            "EDUCATION",
-            "MARRIAGE",
-            "AGE",
-            "PAY_0",
-            "PAY_2",
-            "PAY_3",
-            "PAY_4",
-            "PAY_5",
-            "PAY_6",
-            "BILL_AMT1",
-            "BILL_AMT2",
-            "BILL_AMT3",
-            "BILL_AMT4",
-            "BILL_AMT5",
-            "BILL_AMT6",
-            "PAY_AMT1",
-            "PAY_AMT2",
-            "PAY_AMT3",
-            "PAY_AMT4",
-            "PAY_AMT5",
-            "PAY_AMT6",
-        ]
+        def to_int(val, field_name):
+            try:
+                return int(val)
+            except Exception:
+                raise ValueError(f"Champ {field_name} doit être un entier valide.")
 
-        input_df = pd.DataFrame([features], columns=columns)
+        input_dict = {
+            "limit_bal": to_float(data["limit_bal"], "limit_bal"),
+            "sex": sex_map.get(data["sex"], None),
+            "education": education_map.get(data["education"], None),
+            "marriage": marriage_map.get(data["marriage"], None),
+            "age": to_int(data["age"], "age"),
+        }
+
+        if None in [input_dict["sex"], input_dict["education"], input_dict["marriage"]]:
+            raise ValueError("Valeur invalide pour sex, education ou marriage.")
+
+        months = ["sep", "aug", "jul", "jun", "may", "apr"]
+        for m in months:
+            input_dict[f"payment_status_{m}"] = to_int(
+                data[f"payment_status_{m}"], f"payment_status_{m}"
+            )
+            input_dict[f"bill_statement_{m}"] = to_float(
+                data[f"bill_statement_{m}"], f"bill_statement_{m}"
+            )
+            input_dict[f"previous_payment_{m}"] = to_float(
+                data[f"previous_payment_{m}"], f"previous_payment_{m}"
+            )
+
+        input_df = pd.DataFrame([input_dict])
 
         prediction = rf_model.predict(input_df)[0]
 
-        prediction_label = "OUI" if prediction == 1 else "NON"
-
-        return render_template(
-            "index.html",
-            rf_prediction=f"Risque de défaut de paiement : {prediction_label}",
-        )
+        return render_template("index.html", rf_prediction=prediction)
 
     except Exception as e:
         return render_template(
