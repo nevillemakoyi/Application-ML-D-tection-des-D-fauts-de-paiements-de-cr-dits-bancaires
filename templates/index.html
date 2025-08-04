@@ -1,28 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Prédiction de Crédit</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Détection de Défauts de Paiement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>Détection des défauts de paiement</h2>
-    <form action="/predict" method="POST">
-        <label>Feature 1:</label>
-        <input type="text" name="feature1" required><br>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Détection des Défauts de Paiement</h2>
+    <div class="row">
+        <!-- Colonne 1 : Formulaire pour le modèle 1 -->
+        <div class="col-md-4">
+            <form action="/predict" method="post">
+                <div class="mb-3">
+                    <label for="limit_bal" class="form-label">Montant Crédit (Limit Balance)</label>
+                    <input type="number" step="0.01" class="form-control" name="limit_bal" required>
+                </div>
 
-        <label>Feature 2:</label>
-        <input type="text" name="feature2" required><br>
+                <div class="mb-3">
+                    <label for="sex" class="form-label">Sexe</label>
+                    <select class="form-select" name="sex">
+                        <option value="1">Homme</option>
+                        <option value="2">Femme</option>
+                    </select>
+                </div>
 
-        <label>Feature 3:</label>
-        <input type="text" name="feature3" required><br>
+                <div class="mb-3">
+                    <label for="education" class="form-label">Éducation</label>
+                    <select class="form-select" name="education">
+                        <option value="1">Graduate school</option>
+                        <option value="2">University</option>
+                        <option value="3">High school</option>
+                        <option value="4">Other</option>
+                    </select>
+                </div>
 
-        <!-- Ajoute d'autres champs selon les variables de ton modèle -->
+                <div class="mb-3">
+                    <label for="marriage" class="form-label">Statut matrimonial</label>
+                    <select class="form-select" name="marriage">
+                        <option value="1">Marié</option>
+                        <option value="2">Célibataire</option>
+                        <option value="3">Autre</option>
+                    </select>
+                </div>
 
-        <input type="submit" value="Prédire">
-    </form>
+                <div class="mb-3">
+                    <label for="age" class="form-label">Âge</label>
+                    <input type="number" class="form-control" name="age" required>
+                </div>
 
-    {% if prediction_text %}
-        <h3>{{ prediction_text }}</h3>
-    {% endif %}
+                <hr>
+                <h5>Status de Paiement (mois)</h5>
+
+                {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
+                <div class="mb-3">
+                    <label for="payment_status_{{ month }}" class="form-label">Paiement {{ month | upper }}</label>
+                    <input type="number" class="form-control" name="payment_status_{{ month }}" required>
+                </div>
+                {% endfor %}
+
+                <hr>
+                <h5>Montants des factures (bill statements)</h5>
+
+                {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
+                <div class="mb-3">
+                    <label for="bill_statement_{{ month }}" class="form-label">Facture {{ month | upper }}</label>
+                    <input type="number" class="form-control" name="bill_statement_{{ month }}" required>
+                </div>
+                {% endfor %}
+
+                <hr>
+                <h5>Paiements précédents</h5>
+
+                {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
+                <div class="mb-3">
+                    <label for="previous_payment_{{ month }}" class="form-label">Paiement {{ month | upper }}</label>
+                    <input type="number" class="form-control" name="previous_payment_{{ month }}" required>
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary mt-3 w-100">Prédire</button>
+            </form>
+
+            {% if prediction %}
+            <div class="alert alert-info mt-3">
+                <strong>Résultat :</strong> {{ prediction }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Colonne 2 : Pour formulaire modèle 2 (à venir) -->
+        <div class="col-md-4">
+            <!-- À compléter plus tard -->
+        </div>
+
+        <!-- Colonne 3 : Pour formulaire modèle 3 (à venir) -->
+        <div class="col-md-4">
+            <!-- À compléter plus tard -->
+        </div>
+    </div>
+</div>
 </body>
 </html>
