@@ -7,87 +7,133 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="text-center mb-4"> Détection des Défauts de paiements de crédits bancaires </h1>
-        <div class="row">
-            <!-- Formulaire 1 - Random Forest -->
-            <div class="col-md-4">
-                <h4>Modèle Random Forest</h4>
-                <form method="POST" action="/predict_rf">
-                    <div class="mb-2"><input type="number" name="limit_bal" class="form-control" placeholder="Limite de crédit (limit_bal)" required></div>
-                    <div class="mb-2">
-                        <select name="sex" class="form-control" required>
-                            <option value="">Sexe</option>
-                            <option value="1">Homme</option>
-                            <option value="2">Femme</option>
-                        </select>
-                    </div>
-                    <div class="mb-2"><input type="number" name="education" class="form-control" placeholder="Niveau d'éducation" required></div>
-                    <div class="mb-2"><input type="number" name="marriage" class="form-control" placeholder="Statut matrimonial" required></div>
-                    <div class="mb-2"><input type="number" name="age" class="form-control" placeholder="Âge" required></div>
+  <div class="container mt-4">
+    <div class="row">
 
-                    <!-- Payment status -->
-                    {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
-                        <div class="mb-2"><input type="number" name="payment_status_{{ month }}" class="form-control" placeholder="Statut paiement {{ month|capitalize }}"></div>
-                    {% endfor %}
+      <!-- Formulaire 1 : Random Forest -->
+      <div class="col-lg-4 col-md-6 mb-4">
+        <h2 class="text-center">Formulaire 1 - Modèle Random Forest</h2>
+        <form method="POST" action="/predict_rf">
+          <div class="mb-3">
+            <label for="limit_bal" class="form-label">Limite de crédit (limit_bal)</label>
+            <input type="number" id="limit_bal" name="limit_bal" class="form-control" required />
+          </div>
 
-                    <!-- Bill statements -->
-                    {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
-                        <div class="mb-2"><input type="number" name="bill_statement_{{ month }}" class="form-control" placeholder="Facture {{ month|capitalize }}"></div>
-                    {% endfor %}
+          <div class="mb-3">
+            <label for="sex" class="form-label">Sexe</label>
+            <select id="sex" name="sex" class="form-select" required>
+              <option value="">Sélectionnez</option>
+              <option value="Female">Femme</option>
+              <option value="Male">Homme</option>
+            </select>
+          </div>
 
-                    <!-- Previous payments -->
-                    {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
-                        <div class="mb-2"><input type="number" name="previous_payment_{{ month }}" class="form-control" placeholder="Paiement précédent {{ month|capitalize }}"></div>
-                    {% endfor %}
+          <div class="mb-3">
+            <label for="education" class="form-label">Niveau d'éducation</label>
+            <select id="education" name="education" class="form-select" required>
+              <option value="">Sélectionnez</option>
+              <option value="Graduate school">Graduate school</option>
+              <option value="University">University</option>
+              <option value="High school">High school</option>
+              <option value="Others">Autres</option>
+            </select>
+          </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mt-2">Prédire</button>
-                </form>
+          <div class="mb-3">
+            <label for="marriage" class="form-label">Statut matrimonial</label>
+            <select id="marriage" name="marriage" class="form-select" required>
+              <option value="">Sélectionnez</option>
+              <option value="Single">Célibataire</option>
+              <option value="Married">Marié(e)</option>
+              <option value="Divorced">Divorcé(e)</option>
+            </select>
+          </div>
 
-                {% if prediction_rf %}
-                    <div class="alert alert-info mt-3">
-                        Résultat RF : {{ prediction_rf }}
-                    </div>
-                {% endif %}
-            </div>
+          <div class="mb-3">
+            <label for="age" class="form-label">Âge</label>
+            <input type="number" id="age" name="age" class="form-control" min="18" max="100" required />
+          </div>
 
-            <!-- Formulaire 2 - NLP -->
-            <div class="col-md-4">
-                <h4>Modèle NLP</h4>
-                <form method="POST" action="/predict_nlp">
-                    <div class="mb-3">
-                        <textarea name="text_nlp" rows="10" class="form-control" placeholder="Entrez le texte à analyser..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">Prédire</button>
-                </form>
+          <h5>Statut paiement (septembre à avril)</h5>
+          <div class="row">
+            {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
+              <div class="col-6 mb-3">
+                <label for="payment_status_{{ month }}" class="form-label">Paiement {{ month|capitalize }}</label>
+                <input type="number" id="payment_status_{{ month }}" name="payment_status_{{ month }}" class="form-control" step="1" min="-2" max="8" required />
+              </div>
+            {% endfor %}
+          </div>
 
-                {% if prediction_nlp %}
-                    <div class="alert alert-info mt-3">
-                        Résultat NLP : {{ prediction_nlp }}
-                    </div>
-                {% endif %}
-            </div>
+          <h5>Factures (septembre à avril)</h5>
+          <div class="row">
+            {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
+              <div class="col-6 mb-3">
+                <label for="bill_statement_{{ month }}" class="form-label">Facture {{ month|capitalize }}</label>
+                <input type="number" id="bill_statement_{{ month }}" name="bill_statement_{{ month }}" class="form-control" min="0" step="0.01" required />
+              </div>
+            {% endfor %}
+          </div>
 
-            <!-- Formulaire 3 - LLM -->
-            <div class="col-md-4">
-                <h4>Modèle LLM</h4>
-                <form method="POST" action="/predict_llm">
-                    <div class="mb-3">
-                        <textarea name="text_llm" rows="10" class="form-control" placeholder="Entrez une requête LLM..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-warning w-100">Prédire</button>
-                </form>
+          <h5>Paiements précédents (septembre à avril)</h5>
+          <div class="row">
+            {% for month in ['sep', 'aug', 'jul', 'jun', 'may', 'apr'] %}
+              <div class="col-6 mb-3">
+                <label for="previous_payment_{{ month }}" class="form-label">Paiement précédent {{ month|capitalize }}</label>
+                <input type="number" id="previous_payment_{{ month }}" name="previous_payment_{{ month }}" class="form-control" min="0" step="0.01" required />
+              </div>
+            {% endfor %}
+          </div>
 
-                {% if prediction_llm %}
-                    <div class="alert alert-info mt-3">
-                        Résultat LLM : {{ prediction_llm }}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+          <button type="submit" class="btn btn-primary w-100 mt-3">Prédire</button>
+
+          {% if rf_result is defined %}
+          <div class="alert alert-info mt-3 text-center">
+            Résultat du modèle Random Forest : <strong>{{ rf_result }}</strong>
+          </div>
+          {% endif %}
+        </form>
+      </div>
+
+      <!-- Formulaire 2 : NLP -->
+      <div class="col-lg-4 col-md-6 mb-4">
+        <h2 class="text-center">Formulaire 2 - Modèle NLP</h2>
+        <form method="POST" action="/predict_nlp">
+          <div class="mb-3">
+            <label for="text_nlp" class="form-label">Texte à analyser</label>
+            <textarea id="text_nlp" name="text_nlp" class="form-control" rows="8" placeholder="Entrez le texte à analyser..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Analyser</button>
+
+          {% if prediction_nlp is defined %}
+          <div class="alert alert-info mt-3 text-center">
+            Résultat NLP : <strong>{{ prediction_nlp }}</strong>
+          </div>
+          {% endif %}
+        </form>
+      </div>
+
+      <!-- Formulaire 3 : LLM -->
+      <div class="col-lg-4 col-md-12 mb-4">
+        <h2 class="text-center">Formulaire 3 - Modèle LLM</h2>
+        <form method="POST" action="/predict_llm">
+          <div class="mb-3">
+            <label for="text_llm" class="form-label">Question / Entrée LLM</label>
+            <textarea id="text_llm" name="text_llm" class="form-control" rows="8" placeholder="Entrez votre question ou texte..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Envoyer</button>
+
+          {% if prediction_llm is defined %}
+          <div class="alert alert-info mt-3 text-center">
+            Résultat LLM : <strong>{{ prediction_llm }}</strong>
+          </div>
+          {% endif %}
+        </form>
+      </div>
+
     </div>
+  </div>
 </body>
 </html>
+

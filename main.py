@@ -27,41 +27,54 @@ def index():
 
 @app.route("/predict_rf", methods=["POST"])
 def predict_rf():
-    if request.method == "POST":
-        try:
-            features = np.array(
-                [
-                    [
-                        float(request.form["limit_bal"]),
-                        int(request.form["sex"]),
-                        int(request.form["education"]),
-                        int(request.form["marriage"]),
-                        int(request.form["age"]),
-                        int(request.form["payment_status_sep"]),
-                        int(request.form["payment_status_aug"]),
-                        int(request.form["payment_status_jul"]),
-                        int(request.form["payment_status_jun"]),
-                        int(request.form["payment_status_may"]),
-                        int(request.form["payment_status_apr"]),
-                        float(request.form["bill_statement_sep"]),
-                        float(request.form["bill_statement_aug"]),
-                        float(request.form["bill_statement_jul"]),
-                        float(request.form["bill_statement_jun"]),
-                        float(request.form["bill_statement_may"]),
-                        float(request.form["bill_statement_apr"]),
-                        float(request.form["previous_payment_sep"]),
-                        float(request.form["previous_payment_aug"]),
-                        float(request.form["previous_payment_jul"]),
-                        float(request.form["previous_payment_jun"]),
-                        float(request.form["previous_payment_may"]),
-                        float(request.form["previous_payment_apr"]),
-                    ]
-                ]
-            )
-            prediction = rf_model.predict(features)
-            return render_template("index.html", rf_result=prediction[0])
-        except Exception as e:
-            return f"Erreur lors de la prédiction RF : {e}"
+    try:
+        data = request.form
+
+        # Mapping text to int
+        sex_map = {"Male": 0, "Female": 1}
+        education_map = {
+            "Graduate school": 1,
+            "University": 2,
+            "High school": 3,
+            "Others": 4,
+        }
+        marriage_map = {"Married": 1, "Single": 2, "Others": 3}
+
+        # Construction du vecteur de features
+        features = [
+            float(data["limit_bal"]),
+            sex_map[data["sex"]],
+            education_map[data["education"]],
+            marriage_map[data["marriage"]],
+            int(data["age"]),
+            int(data["payment_status_sep"]),
+            int(data["payment_status_aug"]),
+            int(data["payment_status_jul"]),
+            int(data["payment_status_jun"]),
+            int(data["payment_status_may"]),
+            int(data["payment_status_apr"]),
+            float(data["bill_statement_sep"]),
+            float(data["bill_statement_aug"]),
+            float(data["bill_statement_jul"]),
+            float(data["bill_statement_jun"]),
+            float(data["bill_statement_may"]),
+            float(data["bill_statement_apr"]),
+            float(data["previous_payment_sep"]),
+            float(data["previous_payment_aug"]),
+            float(data["previous_payment_jul"]),
+            float(data["previous_payment_jun"]),
+            float(data["previous_payment_may"]),
+            float(data["previous_payment_apr"]),
+        ]
+
+        # Prédiction
+        prediction = rf_model.predict([features])[0]
+
+        return render_template("index.html", rf_prediction=prediction)
+    except Exception as e:
+        return render_template(
+            "index.html", rf_prediction=f"Erreur lors de la prédiction RF : {str(e)}"
+        )
 
 
 @app.route("/predict_nlp", methods=["POST"])
