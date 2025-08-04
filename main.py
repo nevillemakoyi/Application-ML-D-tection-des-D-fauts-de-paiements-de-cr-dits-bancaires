@@ -30,7 +30,6 @@ def predict_rf():
     try:
         data = request.form
 
-        # Mapping text to int
         sex_map = {"Male": 0, "Female": 1}
         education_map = {
             "Graduate school": 1,
@@ -40,7 +39,6 @@ def predict_rf():
         }
         marriage_map = {"Married": 1, "Single": 2, "Others": 3}
 
-        # Construction du vecteur de features
         features = [
             float(data["limit_bal"]),
             sex_map[data["sex"]],
@@ -67,10 +65,43 @@ def predict_rf():
             float(data["previous_payment_apr"]),
         ]
 
-        # Prédiction
-        prediction = rf_model.predict([features])[0]
+        columns = [
+            "LIMIT_BAL",
+            "SEX",
+            "EDUCATION",
+            "MARRIAGE",
+            "AGE",
+            "PAY_0",
+            "PAY_2",
+            "PAY_3",
+            "PAY_4",
+            "PAY_5",
+            "PAY_6",
+            "BILL_AMT1",
+            "BILL_AMT2",
+            "BILL_AMT3",
+            "BILL_AMT4",
+            "BILL_AMT5",
+            "BILL_AMT6",
+            "PAY_AMT1",
+            "PAY_AMT2",
+            "PAY_AMT3",
+            "PAY_AMT4",
+            "PAY_AMT5",
+            "PAY_AMT6",
+        ]
 
-        return render_template("index.html", rf_prediction=prediction)
+        input_df = pd.DataFrame([features], columns=columns)
+
+        prediction = rf_model.predict(input_df)[0]
+
+        prediction_label = "OUI" if prediction == 1 else "NON"
+
+        return render_template(
+            "index.html",
+            rf_prediction=f"Risque de défaut de paiement : {prediction_label}",
+        )
+
     except Exception as e:
         return render_template(
             "index.html", rf_prediction=f"Erreur lors de la prédiction RF : {str(e)}"

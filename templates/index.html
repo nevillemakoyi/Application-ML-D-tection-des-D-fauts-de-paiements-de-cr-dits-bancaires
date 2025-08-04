@@ -88,11 +88,12 @@
 
           <button type="submit" class="btn btn-primary w-100 mt-3">Prédire</button>
 
-          {% if rf_result is defined %}
-          <div class="alert alert-info mt-3 text-center">
-            Résultat du modèle Random Forest : <strong>{{ rf_result }}</strong>
-          </div>
-          {% endif %}
+          {% if rf_prediction is defined %}
+           <div class="alert alert-info mt-3 text-center">
+           Résultat du modèle Random Forest : <strong>{{ rf_prediction }}</strong>
+           </div>
+         {% endif %}
+
         </form>
       </div>
 
