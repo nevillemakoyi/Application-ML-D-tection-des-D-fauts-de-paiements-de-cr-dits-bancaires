@@ -4,7 +4,7 @@ import numpy as np
 
 app = Flask(__name__)
 
-model = joblib.load("model/ton_modele.pkl")
+model = joblib.load("models/credit_default_model_pipeline.pkl")
 
 
 @app.route("/")
