@@ -3,86 +3,81 @@ import numpy as np
 import joblib
 import pandas as pd
 
+
 app = Flask(__name__)
 
-# Chargement du modèle Random Forest
+# Chargement des modèles (assure-toi que les fichiers existent dans 'models/')
 rf_model = joblib.load("models/credit_default_model_pipeline.pkl")
 
 
-# Fonctions de transformation sécurisée
-def to_float(value, field_name):
-    try:
-        return float(value)
-    except ValueError:
-        raise ValueError(f"Champ '{field_name}' doit être un nombre décimal.")
-
-
-def to_int(value, field_name):
-    try:
-        return int(value)
-    except ValueError:
-        raise ValueError(f"Champ '{field_name}' doit être un entier.")
-
-
-# Fonctions simulées pour NLP et LLM
+# Pour les deux autres, tu peux créer des modèles factices ou charger les tiens
+# Ici on simule juste les réponses pour l'exemple
 def fake_nlp_predict(text):
-    return f"Analyse NLP: Texte reçu avec {len(text)} caractères."
+    # Simule une prédiction pour NLP
+    return "Analyse NLP: Texte reçu avec {} caractères.".format(len(text))
 
 
 def fake_llm_predict(text):
+    # Simule une prédiction pour LLM
     return "Réponse LLM: Question comprise."
 
 
-# Route principale (GET + POST)
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/predict_rf", methods=["POST"])
 def predict_rf():
-    result_message = None
+    try:
+        data = request.form
 
-    if request.method == "POST":
-        try:
-            data = request.form
+        def to_float(val, field_name):
+            try:
+                return float(val)
+            except Exception:
+                raise ValueError(f"Champ {field_name} doit être un nombre valide.")
 
-            # --- Construction du dictionnaire de données ---
-            input_dict = {
-                "limit_bal": to_float(data["limit_bal"], "limit_bal"),
-                "sex": data["sex"],
-                "education": data["education"],
-                "marriage": data["marriage"],
-                "age": to_int(data["age"], "age"),
-            }
+        def to_int(val, field_name):
+            try:
+                return int(val)
+            except Exception:
+                raise ValueError(f"Champ {field_name} doit être un entier valide.")
 
-            months = ["sep", "aug", "jul", "jun", "may", "apr"]
-            for m in months:
-                input_dict[f"payment_status_{m}"] = to_int(
-                    data[f"payment_status_{m}"], f"payment_status_{m}"
-                )
-                input_dict[f"bill_statement_{m}"] = to_float(
-                    data[f"bill_statement_{m}"], f"bill_statement_{m}"
-                )
-                input_dict[f"previous_payment_{m}"] = to_float(
-                    data[f"previous_payment_{m}"], f"previous_payment_{m}"
-                )
+        # NE PAS FAIRE DE MAPPING ICI - laisser les valeurs brutes
+        input_dict = {
+            "limit_bal": to_float(data["limit_bal"], "limit_bal"),
+            "sex": data["sex"],  # ex: 'Male'
+            "education": data["education"],  # ex: 'Graduate school'
+            "marriage": data["marriage"],  # ex: 'Single'
+            "age": to_int(data["age"], "age"),
+        }
 
-            # --- Création du DataFrame ---
-            input_df = pd.DataFrame([input_dict])
+        months = ["sep", "aug", "jul", "jun", "may", "apr"]
+        for m in months:
+            input_dict[f"payment_status_{m}"] = to_int(
+                data[f"payment_status_{m}"], f"payment_status_{m}"
+            )
+            input_dict[f"bill_statement_{m}"] = to_float(
+                data[f"bill_statement_{m}"], f"bill_statement_{m}"
+            )
+            input_dict[f"previous_payment_{m}"] = to_float(
+                data[f"previous_payment_{m}"], f"previous_payment_{m}"
+            )
 
-            # --- Prédiction ---
-            prediction = rf_model.predict(input_df)[0]
-            probability = rf_model.predict_proba(input_df)[0][1]
+        input_df = pd.DataFrame([input_dict])
 
-            # --- Affichage du résultat ---
-            if prediction == 1:
-                result_message = f"⚠️ En défaut de paiement avec une probabilité de {round(probability * 100, 2)} %"
-            else:
-                result_message = f"✅ Pas en défaut de paiement avec une probabilité de {round((1 - probability) * 100, 2)} %"
+        # LAISSE LE PIPELINE FAIRE LA TRANSFORMATION
+        prediction = rf_model.predict(input_df)[0]
 
-        except Exception as e:
-            result_message = f"Erreur : {str(e)}"
+        return render_template("index.html", rf_prediction=prediction)
 
-    return render_template("index.html", result_message=result_message)
+    except Exception as e:
+        return render_template(
+            "index.html", rf_prediction=f"Erreur lors de la prédiction RF : {str(e)}"
+        )
 
 
-# Route NLP
 @app.route("/predict_nlp", methods=["POST"])
 def predict_nlp():
     if request.method == "POST":
@@ -91,7 +86,6 @@ def predict_nlp():
         return render_template("index.html", prediction_nlp=result)
 
 
-# Route LLM
 @app.route("/predict_llm", methods=["POST"])
 def predict_llm():
     if request.method == "POST":
