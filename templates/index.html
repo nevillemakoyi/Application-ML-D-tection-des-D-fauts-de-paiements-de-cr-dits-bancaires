@@ -9,12 +9,13 @@
 
 </head>
 <body>
+  <h3 class="text-center">Application ML - Détection Défauts de Paiement</h3>
   <div class="container mt-4">
     <div class="row">
 
       <!-- Formulaire 1 : Random Forest -->
       <div class="col-lg-4 col-md-6 mb-4">
-        <h2 class="text-center">Formulaire 1 - Modèle Random Forest</h2>
+        <h4 class="text-center">Modèle Random Forest</h4>
         <form method="POST" action="/predict_rf">
           <div class="mb-3">
             <label for="limit_bal" class="form-label">Limite de crédit (limit_bal)</label>
@@ -98,7 +99,7 @@
 
       <!-- Formulaire 2 : NLP -->
       <div class="col-lg-4 col-md-6 mb-4">
-        <h2 class="text-center">Formulaire 2 - Modèle NLP</h2>
+        <h4 class="text-center"> Modèle NLP</h4>
         <form method="POST" action="/predict_nlp">
           <div class="mb-3">
             <label for="text_nlp" class="form-label">Texte à analyser</label>
@@ -116,7 +117,7 @@
 
       <!-- Formulaire 3 : LLM -->
       <div class="col-lg-4 col-md-12 mb-4">
-        <h2 class="text-center">Formulaire 3 - Modèle LLM</h2>
+        <h4 class="text-center">Modèle LLM</h4>
         <form method="POST" action="/predict_llm">
           <div class="mb-3">
             <label for="text_llm" class="form-label">Question / Entrée LLM</label>
