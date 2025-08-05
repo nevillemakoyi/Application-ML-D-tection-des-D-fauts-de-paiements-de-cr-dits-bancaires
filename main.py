@@ -70,6 +70,10 @@ def predict_rf():
         # LAISSE LE PIPELINE FAIRE LA TRANSFORMATION
         prediction = rf_model.predict(input_df)[0]
 
+        proba_0, proba_1 = rf_model.predict_proba(input_df)[0]
+        print(f"✅ Pas en défaut : {round(proba_0 * 100, 2)}%")
+        print(f"⚠️ En défaut : {round(proba_1 * 100, 2)}%")
+
         return render_template("index.html", rf_prediction=prediction)
 
     except Exception as e:
