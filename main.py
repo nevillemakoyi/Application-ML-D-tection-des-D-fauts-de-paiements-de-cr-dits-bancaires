@@ -32,15 +32,6 @@ def predict_rf():
     try:
         data = request.form
 
-        sex_map = {"Male": 0, "Female": 1}
-        education_map = {
-            "Graduate school": 1,
-            "University": 2,
-            "High school": 3,
-            "Others": 4,
-        }
-        marriage_map = {"Married": 1, "Single": 2, "Divorced": 3}
-
         def to_float(val, field_name):
             try:
                 return float(val)
@@ -53,16 +44,14 @@ def predict_rf():
             except Exception:
                 raise ValueError(f"Champ {field_name} doit être un entier valide.")
 
+        # NE PAS FAIRE DE MAPPING ICI - laisser les valeurs brutes
         input_dict = {
             "limit_bal": to_float(data["limit_bal"], "limit_bal"),
-            "sex": sex_map.get(data["sex"], None),
-            "education": education_map.get(data["education"], None),
-            "marriage": marriage_map.get(data["marriage"], None),
+            "sex": data["sex"],  # ex: 'Male'
+            "education": data["education"],  # ex: 'Graduate school'
+            "marriage": data["marriage"],  # ex: 'Single'
             "age": to_int(data["age"], "age"),
         }
-
-        if None in [input_dict["sex"], input_dict["education"], input_dict["marriage"]]:
-            raise ValueError("Valeur invalide pour sex, education ou marriage.")
 
         months = ["sep", "aug", "jul", "jun", "may", "apr"]
         for m in months:
@@ -78,6 +67,7 @@ def predict_rf():
 
         input_df = pd.DataFrame([input_dict])
 
+        # LAISSE LE PIPELINE FAIRE LA TRANSFORMATION
         prediction = rf_model.predict(input_df)[0]
 
         return render_template("index.html", rf_prediction=prediction)
