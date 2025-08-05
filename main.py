@@ -69,12 +69,16 @@ def predict_rf():
 
         # LAISSE LE PIPELINE FAIRE LA TRANSFORMATION
         prediction = rf_model.predict(input_df)[0]
+        # Probabilité associée à la classe prédite
+        probability = rf_model.predict_proba(input_df)[0][1]
 
-        proba_0, proba_1 = rf_model.predict_proba(input_df)[0]
-        print(f"✅ Pas en défaut : {round(proba_0 * 100, 2)}%")
-        print(f"⚠️ En défaut : {round(proba_1 * 100, 2)}%")
+        # Affichage du message
+        if prediction == 1:
+            result_message = f"⚠️ En défaut de paiement avec une probabilité de {round(probability * 100, 2)} %"
+        else:
+            result_message = f"✅ Pas en défaut de paiement avec une probabilité de {round((1 - probability) * 100, 2)} %"
 
-        return render_template("index.html", rf_prediction=prediction)
+        return render_template("index.html", rf_prediction=result_message)
 
     except Exception as e:
         return render_template(
