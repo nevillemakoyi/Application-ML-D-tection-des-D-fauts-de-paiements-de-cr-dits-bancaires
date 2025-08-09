@@ -8,6 +8,8 @@ app = Flask(__name__)
 
 # Chargement des modèles (assure-toi que les fichiers existent dans 'models/')
 rf_model = joblib.load("models/credit_default_model_pipeline.pkl")
+# Pour le modèle NLP, on charge le pipeline
+nlp_model = joblib.load("models/sentiment_model.pkl")
 
 
 # Pour les deux autres, tu peux créer des modèles factices ou charger les tiens
@@ -88,10 +90,22 @@ def predict_rf():
 
 @app.route("/predict_nlp", methods=["POST"])
 def predict_nlp():
+    result_nlp = None
+
     if request.method == "POST":
-        text = request.form["text_nlp"]
-        result = fake_nlp_predict(text)
-        return render_template("index.html", prediction_nlp=result)
+        text = request.form["text_nlp", ""]
+        if text.strip() == "":
+            result_nlp = "Veuillez entrer un texte pour l'analyse NLP."
+
+        else:
+            # Utilisation du modèle NLP pour prédire le sentiment
+            pred = nlp_model.predict([text])[0]
+            if pred == 1:
+                result_nlp = "Le sentiment est positif."
+            else:
+                result_nlp = "Le sentiment est négatif."
+
+        return render_template("index.html", prediction_nlp=result_nlp)
 
 
 @app.route("/predict_llm", methods=["POST"])
