@@ -2,6 +2,16 @@ from flask import Flask, render_template, request
 import numpy as np
 import joblib
 import pandas as pd
+import re
+import string
+import unicodedata
+
+import nltk
+
+nltk.download("stopwords")
+from nltk.corpus import stopwords
+
+stop_words = set(stopwords.words("french"))
 
 
 app = Flask(__name__)
@@ -12,16 +22,21 @@ rf_model = joblib.load("models/credit_default_model_pipeline.pkl")
 nlp_model = joblib.load("models/sentiment_model.pkl")
 
 
-# Pour les deux autres, tu peux créer des modèles factices ou charger les tiens
-# Ici on simule juste les réponses pour l'exemple
-def fake_nlp_predict(text):
-    # Simule une prédiction pour NLP
-    return "Analyse NLP: Texte reçu avec {} caractères.".format(len(text))
-
-
-def fake_llm_predict(text):
-    # Simule une prédiction pour LLM
-    return "Réponse LLM: Question comprise."
+def nettoyer_texte(text):
+    text = text.lower()  # minuscule
+    text = re.sub(r"\d+", "", text)  # supprimer chiffres
+    text = text.translate(
+        str.maketrans("", "", string.punctuation)
+    )  # supprimer ponctuation
+    text = " ".join(
+        [word for word in text.split() if word not in stop_words]
+    )  # stopwords
+    text = "".join(ch for ch in text if ch not in string.punctuation)
+    text = (
+        unicodedata.normalize("NFD", text).encode("ascii", "ignore").decode("utf-8")
+    )  # normalisation unicode
+    text = re.sub(r"[^a-z\s]", "", text)  # Supprimer espaces multiples
+    return text
 
 
 @app.route("/")
@@ -93,17 +108,24 @@ def predict_nlp():
     result_nlp = None
 
     if request.method == "POST":
-        text = request.form["text_nlp", ""]
-        if text.strip() == "":
-            result_nlp = "Veuillez entrer un texte pour l'analyse NLP."
+        raw_text = request.form["text_nlp"]
+
+        text = nettoyer_texte(raw_text)
+
+        if not text:
+            render_template(
+                "index.html",
+                prediction_nlp="Veuillez entrer un texte pour l'analyse NLP.",
+            )
 
         else:
             # Utilisation du modèle NLP pour prédire le sentiment
             pred = nlp_model.predict([text])[0]
-            if pred == 1:
-                result_nlp = "Le sentiment est positif."
-            else:
-                result_nlp = "Le sentiment est négatif."
+            result_nlp = f" sentiment : {pred}"
+        # if pred == 1:
+        # result_nlp = "Le sentiment est positif."
+        # else:
+        # result_nlp = "Le sentiment est négatif."
 
         return render_template("index.html", prediction_nlp=result_nlp)
 
